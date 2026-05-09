@@ -1,0 +1,48 @@
+name: Build GoodMall Flutter APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: stable
+
+      - name: Get packages
+        run: |
+          cd goodmall_flutter_app
+          flutter pub get
+
+      - name: Analyze
+        run: |
+          cd goodmall_flutter_app
+          flutter analyze
+
+      - name: Build release APK
+        run: |
+          cd goodmall_flutter_app
+          flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: goodmall-apk
+          path: goodmall_flutter_app/build/app/outputs/flutter-apk/app-release.apk
